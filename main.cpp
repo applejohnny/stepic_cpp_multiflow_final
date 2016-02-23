@@ -32,7 +32,7 @@ int main(int argc, char ** argv) {
 
     Server server(host, port, home_dir);
     server.setDebug(false);
-    server.run(false);
+    server.run(true);
 
     return 0;
 }

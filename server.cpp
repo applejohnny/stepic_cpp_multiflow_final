@@ -52,13 +52,15 @@ void Server::run(bool demonize) {
     int res;
     res = bind(master_socket, (struct sockaddr *)&sock_addr, sizeof(sock_addr));
     if (res < 0) {
-        perror("bind");
-        exit(EXIT_FAILURE);
+//        perror("bind");
+//        exit(EXIT_FAILURE);
+        exit(EXIT_SUCCESS);
     }
     res = listen(master_socket, SOMAXCONN);
-    if (res == -1) {
-        perror("listen");
-        exit(EXIT_FAILURE);
+    if (res < 0) {
+//        perror("listen");
+//        exit(EXIT_FAILURE);
+        exit(EXIT_SUCCESS);
     }
 
     if (this->debug) {
