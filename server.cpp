@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string>
 
+#include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -96,8 +97,8 @@ void Server::handle_request(int socket) {
                 req.substr(0, 4) != "GET "
                 || req.substr(req.length() - 9, 8) != " HTTP/1.")
         {
-            res = "HTTP/1.0 500 Internal Server Error\r\n"
-                    "Content-Type: text/html\r\n\r\n";
+            res = "HTTP/1.0 500 Internal Server Error\n"
+                    "Content-Type: text/html\n\n";
             break;
         }
 
@@ -113,10 +114,19 @@ void Server::handle_request(int socket) {
 //        std::string p = this->home_dir + path + '\n';
 //        send(socket, p.c_str(), p.size(), 0);
 
+
+        struct stat file_stat;
+        stat((this->home_dir + path).c_str(), &file_stat);
+
         // 404
-        if (!file.is_open()) {
-            res = "HTTP/1.0 404 NOT FOUND\r\n"
-                    "Content-Type: text/html\r\n\r\n";
+        if (
+                // не смогли открыть файл
+                !file.is_open()
+                // это не файл
+                || !(file_stat.st_mode & S_IFREG)
+        ) {
+            res = "HTTP/1.0 404 NOT FOUND\n"
+                    "Content-Type: text/html\n\n";
             break;
         }
 
@@ -125,11 +135,13 @@ void Server::handle_request(int socket) {
                 (std::istreambuf_iterator<char>())
         );
 
+        file.close();
+
         // 200 OK
-        res = "HTTP/1.0 200 OK\r\n"
-                "Content-length: " + std::to_string(str_file.size()) +  "\r\n"
-                "Connection: close\r\n"
-                "Content-Type: text/html\r\n\r\n"
+        res = "HTTP/1.0 200 OK\n"
+                "Content-length: " + std::to_string(str_file.size()) +  "\n"
+                "Connection: close\n"
+                "Content-Type: text/html\n\n"
                 + str_file;
 
     } while (false);
