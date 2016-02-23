@@ -110,8 +110,8 @@ void Server::handle_request(int socket) {
 
         std::ifstream file(this->home_dir + path);
 
-        std::string p = this->home_dir + path + '\n';
-        send(socket, p.c_str(), p.size(), 0);
+//        std::string p = this->home_dir + path + '\n';
+//        send(socket, p.c_str(), p.size(), 0);
 
         // 404
         if (!file.is_open()) {
